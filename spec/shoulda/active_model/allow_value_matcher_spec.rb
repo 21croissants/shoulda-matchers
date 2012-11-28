@@ -50,10 +50,11 @@ describe Shoulda::Matchers::ActiveModel::AllowValueMatcher do
           :less_than_or_equal_to    => 50000
       end.new
     end
+    let(:good_value) { "12345" }
     bad_values = [nil, "", "abc", "0", "50001", "123456", []]
 
     it "allows a good value" do
-      model.should allow_value("12345").for(:attr)
+      model.should allow_value(good_value).for(:attr)
     end
 
     bad_values.each do |bad_value|
@@ -64,6 +65,11 @@ describe Shoulda::Matchers::ActiveModel::AllowValueMatcher do
 
     it "rejects bad values (#{bad_values.map(&:inspect).join(', ')})" do
       model.should_not allow_value(*bad_values).for(:attr)
+    end
+
+    it "rejects the whole list of bad values if any value is valid and fails the test" do
+      # FIXME I dont know how to reproduce this bug with a faling test without changing the implementation
+      model.should_not allow_value(good_value, "xyz").for(:attr) # This should fail!
     end
   end
 
